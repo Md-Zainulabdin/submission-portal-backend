@@ -9,7 +9,7 @@ const fakeUsers = [
   { id: 4, name: "Bob Brown", email: "bob@example.com" }
 ];
 
-router.get('/users', (req, res) => {
+router.get('/all', (req, res) => {
   res.json(fakeUsers);
 });
 
