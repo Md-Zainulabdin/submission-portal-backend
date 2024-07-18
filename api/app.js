@@ -1,7 +1,6 @@
 import cors from 'cors'; // Cross-Origin Resource Sharing
 import express from 'express';
 
-
 const app = express();
 
 // Middleware configuration
