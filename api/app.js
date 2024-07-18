@@ -16,7 +16,9 @@ app.get('/', (req, res) => {
 
 // Routes Import
 import userRoutes from "./routes/user.routes.js"
+import studentRoutes from "./routes/student.routes.js"
 
+app.use('/api/v1/student', studentRoutes)
 app.use("/api/v1/", userRoutes)
 
 export default app;
