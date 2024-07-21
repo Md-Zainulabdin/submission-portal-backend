@@ -49,8 +49,15 @@ export const createStudent = async (req, res) => {
 
 export const getAllStudents = async (req, res) => {
     try {
+        const role = req.user.role;
+        const teacherId = req.user.id;
+
+        if (role !== 'teacher') {
+            return res.status(403).json({ message: "You are not authorized to perform this action" });
+        }
+
         // Find students assigned to the logged-in teacher
-        const students = await Student.find();
+        const students = await Student.find({ teacher: teacherId });
         return res.status(200).json(students);
     } catch (error) {
         console.error("Error fetching students:", error);

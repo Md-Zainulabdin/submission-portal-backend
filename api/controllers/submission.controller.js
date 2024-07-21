@@ -1,5 +1,7 @@
 import { Submission } from '../models/submission.model.js';
+import { Student } from '../models/student.model.js';
 import { Assignment } from '../models/assignment.model.js';
+import sendEmail from "../config/nodemailer.config.js"
 
 import mongoose from 'mongoose';
 
@@ -23,8 +25,17 @@ export const createSubmission = async (req, res) => {
         // Check if the student has already submitted this assignment
         const existingSubmission = await Submission.findOne({ assignment: assignmentId, student: studentId });
 
-        if (existingSubmission && existingSubmission.canResubmit == false) {
-            return res.status(400).json({ message: 'You have already submitted this assignment' });
+        if (existingSubmission) {
+            if (existingSubmission.canResubmit) {
+                // Update the existing submission with the new URL
+                existingSubmission.url = url;
+                existingSubmission.status = "pending";
+                existingSubmission.canResubmit = false;
+                const updatedSubmission = await existingSubmission.save();
+                return res.status(201).json(updatedSubmission); // Return the updated submission
+            } else {
+                return res.status(400).json({ message: 'You have already submitted this assignment' });
+            }
         }
 
         const assignment = await Assignment.findById(assignmentId);
@@ -146,6 +157,41 @@ export const updateSubmissionStatusAndMark = async (req, res) => {
 
         if (!updatedSubmission) {
             return res.status(404).json({ message: 'Submission not found' });
+        }
+
+        // Check if the submission status is disapproved
+        if (status === 'disapproved') {
+            // Fetch the student details
+            const student = await Student.findById(updatedSubmission.student);
+
+            if (!student) {
+                return res.status(404).json({ message: 'Student not found' });
+            }
+
+            // Prepare the email content
+            const text = 'Submission Update'
+
+            const subject = canResubmit
+                ? 'Submission Update: Disapproved, but Resubmission is Allowed!'
+                : 'Important: Your Submission Has Been Disapproved';
+
+            const html = `
+           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+               <h3>Submission Update</h3>
+               <p>Dear ${student.fullname},</p>
+               <p>We regret to inform you that your submission has been <span style="color: #D9534F;">disapproved</span> by your teacher.</p>
+               <p><strong>Reason for disapproval:</strong> ${rejectionReason}</p>
+               ${canResubmit
+                    ? `<p>However, you are <strong>allowed to resubmit</strong> the assignment. Please make the necessary improvements and resubmit it at your earliest convenience.</p>`
+                    : `<p>Unfortunately, you are not allowed to resubmit the assignment. Please reach out to your teacher if you have any questions or need further clarification.</p>`
+                }
+               <p>Best regards,</p>
+               <p><strong>SMIT Assignment Submission Portal Team</strong></p>
+           </div>
+       `;
+
+            // Send email notification to the student
+            await sendEmail(student.email, subject, text, html);
         }
 
         return res.status(200).json(updatedSubmission);

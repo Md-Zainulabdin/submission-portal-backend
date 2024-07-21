@@ -1,6 +1,7 @@
 import { Assignment } from '../models/assignment.model.js';
 import { Submission } from '../models/submission.model.js';
 import { Student } from '../models/student.model.js';
+import sendEmail from "../config/nodemailer.config.js"
 
 import mongoose from 'mongoose';
 
@@ -18,7 +19,7 @@ export const createAssignment = async (req, res) => {
         const teacherId = req.user.id;
 
         // Validate all required fields are present
-        if (!title || !description || !deadline || !link || !points) {
+        if (!title || !description || !deadline || !points) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -31,6 +32,38 @@ export const createAssignment = async (req, res) => {
             assignedBy: teacherId,
             points,
         });
+
+        // Fetch all students associated with the teacher
+        const students = await Student.find({ teacher: teacherId });
+
+        // Send an email to each student
+        const emailPromises = students.map(student =>
+            sendEmail(
+                student.email,
+                'New Assignment Alert: Get Ready for a Challenge! 🚀',
+                'A new assignment has been created. Please check the portal for details.',
+                `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <h2>New Assignment Alert!</h2>
+                    <p>Dear ${student.fullname},</p>
+                    <p>We are excited to inform you that a new assignment <strong>${title}</strong> has been created by your teacher. Please check the portal for further details and make sure to complete it by the deadline.</p>
+                    <ul>
+                        <li><strong>Title:</strong> ${title}</li>
+                        <li><strong>Description:</strong> ${description}</li>
+                        <li><strong>Deadline:</strong> ${deadline}</li>
+                        <li><strong>Points:</strong> ${points}</li>
+                    </ul>
+                    <p>You can access the assignment <a href="${link}">here</a>.</p>
+                    <p>Best of luck!</p>
+                    <p>Kind regards,</p>
+                    <p>Your Teaching Team</p>
+                </div>
+                `
+            )
+        );
+
+        // Wait for all email promises to resolve
+        await Promise.all(emailPromises);
 
         // Save the assignment to the database
         await newAssignment.save();
