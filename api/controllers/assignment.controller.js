@@ -28,7 +28,7 @@ export const createAssignment = async (req, res) => {
             title,
             description,
             deadline,
-            link,
+            link: link ?? "",
             assignedBy: teacherId,
             points,
         });
