@@ -140,7 +140,7 @@ export const updateSubmissionStatusAndMark = async (req, res) => {
             if (!rejectionReason) {
                 return res.status(400).json({ message: 'Reason is required for disapproval' });
             }
-            updateFields = { ...updateFields, rejectionReason, isApproved: false, isSeen: true, canResubmit };
+            updateFields = { ...updateFields, rejectionReason, isApproved: false, isSeen: true, canResubmit, points: 0, feedback: "" };
         } else if (status === 'approved') {
             if (!points || !feedback) {
                 return res.status(400).json({ message: 'Points and feedback are required for approval' });
