@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Teacher } from '../models/teacher.model.js';
 import { Student } from '../models/student.model.js';
+import { Admin } from '../models/admin.model.js';
 import bcrypt from 'bcrypt'
 
 /**
@@ -9,7 +10,7 @@ import bcrypt from 'bcrypt'
  * @access public
  */
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -18,6 +19,10 @@ export const login = async (req, res, next) => {
 
         if (!user) {
             user = await Student.findOne({ email: email });
+        }
+
+        if (!user) {
+            user = await Admin.findOne({ email: email });
         }
 
         if (!user) {
@@ -39,7 +44,7 @@ export const login = async (req, res, next) => {
             token,
             user: {
                 id: user._id,
-                name: user.fullname,
+                name: user.name || user.fullname,
                 email: user.email,
                 role: user.role
             }

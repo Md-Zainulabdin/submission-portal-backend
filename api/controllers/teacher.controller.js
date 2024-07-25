@@ -51,7 +51,10 @@ export const createTeacher = async (req, res) => {
 
 export const getAllTeachers = async (req, res) => {
     try {
-        const teachers = await Teacher.find().populate('students');
+        const teachers = await Teacher.find()
+            .populate('students')
+            .populate('course', 'coursename city')
+            .populate('batch', 'batchname batchcode');
         return res.status(200).json(teachers);
     } catch (error) {
         console.error("Error fetching teachers:", error);

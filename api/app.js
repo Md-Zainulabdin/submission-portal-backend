@@ -21,8 +21,10 @@ import authRoutes from "./routes/auth.routes.js"
 import assignmentRoutes from "./routes/assignment.routes.js"
 import submissionRoutes from "./routes/submission.routes.js"
 import userRoutes from "./routes/user.routes.js"
+import adminRoutes from "./routes/admin.routes.js"
 
 app.use("/api/v1/users", userRoutes)
+app.use("/api/v1/admin", adminRoutes)
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/student', studentRoutes)
 app.use('/api/v1/teacher', teacherRoutes)

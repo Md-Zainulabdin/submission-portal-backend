@@ -11,9 +11,9 @@ const teacherSchema = new Schema(
     phone: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
     address: { type: String, required: true },
-    batch: { type: String, required: true },
-    course: { type: String, required: true },
-    students: [{ type: Schema.Types.ObjectId, ref: 'Student' }], 
+    batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: true },
+    course: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+    students: [{ type: Schema.Types.ObjectId, ref: 'Student' }],
     picture: { type: String, required: true },
   },
   {
