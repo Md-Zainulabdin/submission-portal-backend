@@ -10,7 +10,7 @@ const adminSchema = new Schema(
             trim: true
         },
         password: { type: String, required: true },
-        role: { type: String, role: "admin" },
+        role: { type: String, default: "admin" },
     },
     {
         timestamps: true

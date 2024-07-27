@@ -145,7 +145,7 @@ export const updateSubmissionStatusAndMark = async (req, res) => {
             if (!points || !feedback) {
                 return res.status(400).json({ message: 'Points and feedback are required for approval' });
             }
-            updateFields = { ...updateFields, points, feedback, isApproved: true, isSeen: true };
+            updateFields = { ...updateFields, points, feedback, isApproved: true, isSeen: true, canResubmit: false, rejectionReason: '' };
         }
 
         // Update submission

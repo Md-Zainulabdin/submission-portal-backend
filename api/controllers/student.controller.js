@@ -43,11 +43,11 @@ export const createStudent = async (req, res) => {
 
 /**
  * @route GET /api/v1/student/all
- * @desc GET all student
+ * @desc GET all student of teacher
  * @access private
  */
 
-export const getAllStudents = async (req, res) => {
+export const getStudentByTeacher = async (req, res) => {
     try {
         const role = req.user.role;
         const teacherId = req.user.id;
@@ -58,6 +58,22 @@ export const getAllStudents = async (req, res) => {
 
         // Find students assigned to the logged-in teacher
         const students = await Student.find({ teacher: teacherId });
+        return res.status(200).json(students);
+    } catch (error) {
+        console.error("Error fetching students:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+/**
+ * @route GET /api/v1/admin/student/all
+ * @desc GET all student 
+ * @access private
+ */
+
+export const getAllStudents = async (req, res) => {
+    try {
+        const students = await Student.find();
         return res.status(200).json(students);
     } catch (error) {
         console.error("Error fetching students:", error);

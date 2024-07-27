@@ -44,7 +44,7 @@ export const createTeacher = async (req, res) => {
 
 
 /**
- * @route GET /api/v1/teacher/all
+ * @route GET /api/v1/admin/teacher/all
  * @desc GET all teacher
  * @access private
  */

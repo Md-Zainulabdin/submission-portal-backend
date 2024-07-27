@@ -162,6 +162,7 @@ export const updateAssignment = async (req, res) => {
         // Update allowable fields
         if (deadline) {
             assignment.deadline = deadline;
+            assignment.status = "open"
         }
         if (title) {
             assignment.title = title;

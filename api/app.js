@@ -24,6 +24,7 @@ import userRoutes from "./routes/user.routes.js"
 import adminRoutes from "./routes/admin.routes.js"
 import courseRoutes from "./routes/course.routes.js"
 import batchRoutes from "./routes/batch.routes.js"
+import dashboardRoutes from "./routes/dashboard.routes.js"
 
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/admin", adminRoutes)
@@ -34,5 +35,6 @@ app.use('/api/v1/assignment', assignmentRoutes)
 app.use('/api/v1/submission', submissionRoutes)
 app.use('/api/v1/course', courseRoutes)
 app.use('/api/v1/batch', batchRoutes)
+app.use('/api/v1/dashboard', dashboardRoutes)
 
 export default app;
