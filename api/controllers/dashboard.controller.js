@@ -89,58 +89,9 @@ export const getLeaderboard = async (req, res) => {
             return res.status(403).json({ message: 'Access denied.' });
         }
 
-        const leaderboard = await Submission.aggregate([
-            {
-                $match: { status: 'approved' } // Only consider approved submissions
-            },
-            {
-                $lookup: {
-                    from: 'students',
-                    localField: 'student',
-                    foreignField: '_id',
-                    as: 'student'
-                }
-            },
-            {
-                $unwind: "$student"
-            },
-            {
-                $match: {
-                    'student.teacher': teacherId
-                }
-            },
-            {
-                $group: {
-                    _id: "$student._id",
-                    totalPoints: { $sum: "$points" }
-                }
-            },
-            {
-                $sort: { totalPoints: -1 }
-            },
-            {
-                $limit: 5
-            },
-            {
-                $lookup: {
-                    from: 'students',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'student'
-                }
-            },
-            {
-                $unwind: "$student"
-            },
-            {
-                $project: {
-                    _id: 0,
-                    studentId: "$student._id",
-                    fullname: "$student.fullname",
-                    totalPoints: 1
-                }
-            }
-        ]);
+        const leaderboard = await Assignment.findMany({
+            assignedBy: teacherId,
+        }).populate("submissions", "points")
 
         return res.json(leaderboard);
     } catch (error) {

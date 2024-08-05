@@ -7,14 +7,10 @@ const teacherSchema = new Schema(
     gender: { type: String, required: true },
     cnic: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, required: true },
-    phone: { type: String, required: true },
-    dateOfBirth: { type: Date, required: true },
-    address: { type: String, required: true },
+    role: { type: String, default: "teacher" },
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: true },
     course: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
     students: [{ type: Schema.Types.ObjectId, ref: 'Student' }],
-    picture: { type: String, required: true },
   },
   {
     timestamps: true

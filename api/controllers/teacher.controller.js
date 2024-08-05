@@ -1,5 +1,6 @@
 import { Teacher } from '../models/teacher.model.js';
 import { Student } from '../models/student.model.js';
+import sendEmail from "../config/nodemailer.config.js"
 import bcrypt from 'bcrypt'
 
 /**
@@ -11,14 +12,14 @@ import bcrypt from 'bcrypt'
 export const createTeacher = async (req, res) => {
     try {
         const {
-            fullname, email, gender, cnic, phone, dateOfBirth, address,
-            batch, course, picture,
+            fullname, email, gender, cnic,
+            batch, course,
             password,
         } = req.body;
 
         // Validate all required fields are present
-        if (!fullname || !email || !gender || !cnic || !phone || !dateOfBirth || !address ||
-            !batch || !course || !picture || !password) {
+        if (!fullname || !email || !gender || !cnic ||
+            !batch || !course || !password) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -26,14 +27,32 @@ export const createTeacher = async (req, res) => {
 
         // Create new teacher instance
         const newTeacher = new Teacher({
-            fullname, email, gender, cnic, phone, dateOfBirth, address,
-            batch, course, picture,
+            fullname, email, gender, cnic,
+            batch, course,
             password: hashedPassword,
-            role: "teacher",
         });
 
         // Save the teacher to the database
         await newTeacher.save();
+
+        // Prepare the email content
+        const text = 'Account Created';
+        const subject = 'Your Teacher Account Has Been Created';
+        const html = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h3>Account Created</h3>
+        <p>Dear ${fullname},</p>
+        <p>Your teacher account has been successfully created.</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Password:</strong> ${password}</p>
+        <p>You can now access your account.</p>
+        <p>Best regards,</p>
+        <p><strong>SMIT Assignment Submission Portal Team</strong></p>
+      </div>
+    `;
+
+        // Send email notification to the new teacher
+        await sendEmail(email, subject, text, html);
 
         return res.status(201).json(newTeacher); // Return the newly created teacher
     } catch (error) {
@@ -54,7 +73,7 @@ export const getAllTeachers = async (req, res) => {
         const teachers = await Teacher.find()
             .populate('students')
             .populate('course', 'coursename city')
-            .populate('batch', 'batchname batchcode');
+            .populate('batch', 'batchname batchcode time');
         return res.status(200).json(teachers);
     } catch (error) {
         console.error("Error fetching teachers:", error);

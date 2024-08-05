@@ -10,13 +10,13 @@ import bcrypt from 'bcrypt'
 export const createStudent = async (req, res) => {
     try {
         const {
-            fullname, email, gender, cnic, phone, dateOfBirth, address,
-            fatherName, fatherCnic, campus, course, classPreference, picture, hasLaptop, password
+            fullname, email, gender, cnic,
+            city, course, hasLaptop, password
         } = req.body;
 
         // Validate all required fields are present
-        if (!fullname || !email || !gender || !cnic || !phone || !dateOfBirth || !address ||
-            !fatherName || !fatherCnic || !campus || !course || !classPreference || !password || !picture || hasLaptop === undefined) {
+        if (!fullname || !email || !gender || !cnic || !city ||
+            !course || !password || hasLaptop === undefined) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -24,10 +24,9 @@ export const createStudent = async (req, res) => {
 
         // Create new student instance
         const newStudent = new Student({
-            fullname, email, gender, cnic, phone, dateOfBirth, address,
-            fatherName, fatherCnic, campus, course, classPreference, picture, hasLaptop,
+            fullname, email, gender, cnic,
+            city, course, hasLaptop,
             password: hashedPassword,
-            role: "student",
         });
 
         // Save the student to the database
