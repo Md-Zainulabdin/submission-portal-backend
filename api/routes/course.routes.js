@@ -11,10 +11,10 @@ router.use(isAuthenticated)
 router.use(isAdmin)
 
 // Course Routes
-router.route('/course/create').post(createCourse)
-router.route('/course/all').get(getAllCourses)
-router.route('/course/:id').get(getCourseById)
-router.route('/course/update/:id').put(updateCourse)
-router.route('/course/delete/:id').delete(deleteCourse)
+router.route('/create').post(createCourse)
+router.route('/all').get(getAllCourses)
+router.route('/:id').get(getCourseById)
+router.route('/update/:id').put(updateCourse)
+router.route('/delete/:id').delete(deleteCourse)
 
 export default router;

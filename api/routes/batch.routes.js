@@ -11,10 +11,10 @@ router.use(isAuthenticated)
 router.use(isAdmin)
 
 // Batch Routes
-router.route('/batch/create').post(createBatch)
-router.route('/batch/all').get(getAllBatches)
-router.route('/batch/:id').get(getBatchById)
-router.route('/batch/update/:id').put(updateBatch)
-router.route('/batch/delete/:id').delete(deleteBatch)
+router.route('/create').post(createBatch)
+router.route('/all').get(getAllBatches)
+router.route('/:id').get(getBatchById)
+router.route('/update/:id').put(updateBatch)
+router.route('/delete/:id').delete(deleteBatch)
 
 export default router;
