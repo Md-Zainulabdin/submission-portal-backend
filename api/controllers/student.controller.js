@@ -11,21 +11,28 @@ export const createStudent = async (req, res) => {
     try {
         const {
             fullname, email, gender, cnic,
-            city, course, hasLaptop, password
+            city, course, batch, teacher, hasLaptop, password
         } = req.body;
 
         // Validate all required fields are present
         if (!fullname || !email || !gender || !cnic || !city ||
-            !course || !password || hasLaptop === undefined) {
+            !course || !batch || !teacher || !password) {
             return res.status(400).json({ message: "All fields are required." });
+        }
+
+        const existingStudent = await Student.findOne({ email })
+
+        if (existingStudent) {
+            return res.status(400).json({ message: "Student with this email already exists." });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
 
+
         // Create new student instance
         const newStudent = new Student({
             fullname, email, gender, cnic,
-            city, course, hasLaptop,
+            city, course, batch, teacher, hasLaptop,
             password: hashedPassword,
         });
 
@@ -56,7 +63,9 @@ export const getStudentByTeacher = async (req, res) => {
         }
 
         // Find students assigned to the logged-in teacher
-        const students = await Student.find({ teacher: teacherId });
+        const students = await Student.find({ teacher: teacherId })
+            .populate('course', 'coursename city')
+            .populate('batch', 'batchname batchcode time');
         return res.status(200).json(students);
     } catch (error) {
         console.error("Error fetching students:", error);
@@ -72,10 +81,38 @@ export const getStudentByTeacher = async (req, res) => {
 
 export const getAllStudents = async (req, res) => {
     try {
-        const students = await Student.find();
+        const students = await Student.find()
+            .populate('course', 'coursename city')
+            .populate('batch', 'batchname batchcode time');
         return res.status(200).json(students);
     } catch (error) {
         console.error("Error fetching students:", error);
         return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+/**
+ * @route DELETE /api/v1/student/delete/:id
+ * @desc Delete Student
+ * @access private
+ */
+
+export const deleteStudent = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the student by ID
+        const student = await Student.findById(id);
+
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        await Student.findByIdAndDelete(id);
+
+        return res.status(200).json({ message: 'Student deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting Student:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };

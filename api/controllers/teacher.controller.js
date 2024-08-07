@@ -1,5 +1,7 @@
 import { Teacher } from '../models/teacher.model.js';
+import { Assignment } from '../models/assignment.model.js';
 import { Student } from '../models/student.model.js';
+import { Submission } from '../models/submission.model.js';
 import sendEmail from "../config/nodemailer.config.js"
 import bcrypt from 'bcrypt'
 
@@ -21,6 +23,12 @@ export const createTeacher = async (req, res) => {
         if (!fullname || !email || !gender || !cnic ||
             !batch || !course || !password) {
             return res.status(400).json({ message: "All fields are required." });
+        }
+
+        const existingTeacher = await Teacher.findOne({ email })
+
+        if (existingTeacher) {
+            return res.status(400).json({ message: "Teacher with this email already exists." });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
@@ -144,5 +152,78 @@ export const assignStudents = async (req, res) => {
     } catch (error) {
         console.error("Error updating teacher and assigning students:", error);
         return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+/**
+ * @route PUT /api/v1/teacher/update/:id
+ * @desc Update Teacher
+ * @access private
+ */
+export const updateTeacher = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            fullname, email, gender, cnic,
+            batch, course, password,
+        } = req.body;
+
+        const teacher = await Teacher.findById(id);
+
+        if (!teacher) {
+            return res.status(404).json({ message: 'Teacher not found' });
+        }
+
+        if (fullname) teacher.fullname = fullname;
+        if (email) teacher.email = email;
+        if (gender) teacher.gender = gender;
+        if (cnic) teacher.cnic = cnic;
+        if (batch) teacher.batch = batch;
+        if (course) teacher.course = course;
+
+        await teacher.save();
+
+        return res.status(200).json(teacher);
+    } catch (error) {
+        console.error('Error updating teacher:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+/**
+ * @route DELETE /api/v1/teacher/delete/:id
+ * @desc Delete Teacher
+ * @access private
+ */
+
+export const deleteTeacher = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the teacher by ID
+        const teacher = await Teacher.findById(id);
+
+        if (!teacher) {
+            return res.status(404).json({ message: 'Teacher not found' });
+        }
+
+        // Find all assignments associated with the teacher
+        const assignments = await Assignment.find({ assignedBy: id });
+
+        // Delete all submissions related to each assignment
+        for (const assignment of assignments) {
+            await Submission.deleteMany({ assignment: assignment._id });
+        }
+
+        // Delete all assignments associated with the teacher
+        await Assignment.deleteMany({ assignedBy: id });
+
+        // Delete the teacher
+        await Teacher.findByIdAndDelete(id);
+
+        return res.status(200).json({ message: 'Teacher and related assignments deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting teacher:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };

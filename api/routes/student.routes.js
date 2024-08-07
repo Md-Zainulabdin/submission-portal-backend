@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
-import { createStudent, getStudentByTeacher } from "../controllers/student.controller.js";
+import { createStudent, deleteStudent, getStudentByTeacher } from "../controllers/student.controller.js";
 import { getStudentSubmissions } from "../controllers/submission.controller.js";
 
 
@@ -13,6 +13,9 @@ router.use(isAuthenticated)
 
 // Fetch All Student
 router.route('/all').get(getStudentByTeacher)
+
+// Delete Student
+router.route('/delete/:id').delete(deleteStudent)
 
 // Fetch Student Submission 
 router.route('/submissions').put(getStudentSubmissions)

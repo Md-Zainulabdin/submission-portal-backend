@@ -13,15 +13,17 @@ const router = Router();
 // Create Admin
 router.route('/register').post(createAdmin)
 
+// Get All Students 
+router.route('/teachers/all').get(getAllTeachers)
+
 router.use(isAuthenticated)
 router.use(isAdmin)
 
 // Assign Student to Teacher
 router.route('/assign-students/:teacherId').put(assignStudents)
 
-// Get All Students & Teachers
+// Get All Students 
 router.route('/students/all').get(getAllStudents)
-router.route('/teachers/all').get(getAllTeachers)
 
 
 export default router;
