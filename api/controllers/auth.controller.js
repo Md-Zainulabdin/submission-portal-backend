@@ -54,3 +54,39 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+
+/**
+ * @route POST /api/v1/auth/user/:id
+ * @desc get user by id
+ * @access public
+ */
+
+export const getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        let user = await Teacher.findById(id)
+            .populate('course', 'coursename city')
+            .populate('batch', 'batchname batchcode time');
+
+        if (!user) {
+            user = await Student.findById(id)
+                .populate('course', 'coursename city')
+                .populate('batch', 'batchname batchcode time');
+        }
+
+        if (!user) {
+            user = await Admin.findById(id);
+        }
+
+        if (!user) {
+            return res.status(400).json({ message: 'No user found' });
+        }
+
+        return res.status(200).json(user);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
